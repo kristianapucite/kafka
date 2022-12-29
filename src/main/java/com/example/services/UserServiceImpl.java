@@ -20,19 +20,27 @@ public class UserServiceImpl implements  UserService{
     @Autowired private UserRepository repository;
     @Autowired private UserMapper mapper;
 
-    //@Bean
-//    CommandLineRunner commandLineRunner(KafkaTemplate<String, String> template, String info)  {
+//    private String kafkaTopicName;
+//    private KafkaTemplate<String, String> kafkaTemplate;
+//
+//   // @Autowired private KafkaTemplate<String, String> kafkaTemplate;
+//
+//    //@Bean
+//    CommandLineRunner commandLineRunner(KafkaTemplate<String, String> template, String info) {
 //        return args -> {
 //            template.send("testTopic", info);
 //        };
 //    }
+//
+//    private void sendMessage(String info) {
+//
+//
+//    }
+
 
     @Override
     public UserModel getById(Long id) {
         Optional<UserDAO> dao = repository.findById(id);
-
-       // commandLineRunner(new KafkaTemplate<String, String>(), "");
-
         return dao.map(userDAO -> mapper.toModel(userDAO)).orElse(null);
     }
 

@@ -5,8 +5,10 @@ import com.example.models.UserModel;
 import com.example.services.UserService;
 import com.github.shihyuho.jackson.databind.SerializeAllExcept;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,13 +20,30 @@ import java.util.List;
 @RequestMapping(value = "api/v1/users")
 public class UserController {
 
+    @Value("${spring.kafka.topic.name}")
+    private String kafkaTopicName;
+
+    private KafkaTemplate<String, String> kafkaTemplate;
+
     @Autowired private UserService service;
+
+
+    public UserController(
+            @Value("${spring.kafka.topic.name}") String kafkaTopicName,
+            KafkaTemplate<String, String> kafkaTemplate) {
+        super();
+        this.kafkaTopicName = kafkaTopicName;
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<UserModel> getUserById(
             @PathVariable Long id) {
         UserModel model = service.getById(id);
         if(model != null) {
+            kafkaTemplate.send(kafkaTopicName, "user found");
             return ResponseEntity.ok(model);
         }
         else return ResponseEntity.notFound().build();
